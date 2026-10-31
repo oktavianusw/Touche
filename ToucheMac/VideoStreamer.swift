@@ -1,6 +1,6 @@
 //
 //  VideoStreamer.swift
-//  DigitalControlerMac
+//  ToucheMac
 //
 
 import CoreMedia

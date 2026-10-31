@@ -1,6 +1,6 @@
 //
-//  DigitalControlerMacApp.swift
-//  DigitalControlerMac
+//  ToucheMacApp.swift
+//  ToucheMac
 //
 
 import SwiftUI
@@ -10,7 +10,7 @@ import ServiceManagement
 import os
 
 @main
-struct DigitalControlerMacApp: App {
+struct ToucheMacApp: App {
     @State private var server = Server()
 
     init() {

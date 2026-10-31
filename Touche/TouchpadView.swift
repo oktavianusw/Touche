@@ -1,6 +1,6 @@
 //
 //  TouchpadView.swift
-//  DigitalControler
+//  Touche
 //
 
 import SwiftUI

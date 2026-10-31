@@ -1,6 +1,6 @@
 //
 //  Pacer.swift
-//  DigitalControlerMac
+//  ToucheMac
 //
 
 import Foundation

@@ -1,6 +1,6 @@
 //
 //  ScreenStreamer.swift
-//  DigitalControlerMac
+//  ToucheMac
 //
 
 import AppKit

@@ -1,6 +1,6 @@
 //
 //  Injector.swift
-//  DigitalControlerMac
+//  ToucheMac
 //
 
 import AppKit

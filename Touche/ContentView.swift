@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  DigitalControler
+//  Touche
 //
 
 import SwiftUI

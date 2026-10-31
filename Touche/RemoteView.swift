@@ -1,6 +1,6 @@
 //
 //  RemoteView.swift
-//  DigitalControler
+//  Touche
 //
 
 import SwiftUI

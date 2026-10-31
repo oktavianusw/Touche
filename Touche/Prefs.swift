@@ -1,6 +1,6 @@
 //
 //  Prefs.swift
-//  DigitalControler
+//  Touche
 //
 //  UserDefaults keys for Settings, shared by every screen's @AppStorage, and the Keychain for pairing secrets.
 //

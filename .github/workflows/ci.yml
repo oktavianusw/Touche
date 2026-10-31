@@ -16,9 +16,9 @@ jobs:
       - name: Test iPhone app
         run: |
           sim=$(xcrun simctl list -j devices available | jq -r '[.devices[][] | select(.name | startswith("iPhone"))][0].udid')
-          xcodebuild test -project DigitalControler.xcodeproj -scheme DigitalControler \
+          xcodebuild test -project Touche.xcodeproj -scheme Touche \
             -destination "id=$sim" $SIGN
       - name: Build Mac helper
         run: |
-          xcodebuild build -project DigitalControler.xcodeproj -scheme DigitalControlerMac \
+          xcodebuild build -project Touche.xcodeproj -scheme ToucheMac \
             -destination 'platform=macOS' $SIGN

@@ -1,13 +1,13 @@
 //
-//  DigitalControlerTests.swift
-//  DigitalControlerTests
+//  ToucheTests.swift
+//  ToucheTests
 //
 
 import XCTest
-@testable import DigitalControler
+@testable import Touche
 
 @MainActor
-final class DigitalControlerTests: XCTestCase {
+final class ToucheTests: XCTestCase {
 
     func testMessageRoundTrip() {
         let m = Message(kind: .move, dx: -3.5, dy: 120.25, time: 4_000_000_123)

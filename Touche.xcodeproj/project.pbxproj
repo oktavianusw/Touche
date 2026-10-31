@@ -12,43 +12,43 @@
 			containerPortal = 18771A6E30641CC7001C1DB0 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 18771A7530641CC7001C1DB0;
-			remoteInfo = DigitalControler;
+			remoteInfo = Touche;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		18771A7630641CC7001C1DB0 /* DigitalControler.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DigitalControler.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		18771A8530641CC9001C1DB0 /* DigitalControlerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DigitalControlerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		18771B0130641CC9001C1DB0 /* DigitalControlerMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = DigitalControlerMac.app; path = Touche.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		18771A7630641CC7001C1DB0 /* Touche.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Touche.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		18771A8530641CC9001C1DB0 /* ToucheTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ToucheTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		18771B0130641CC9001C1DB0 /* ToucheMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = ToucheMac.app; path = Touche.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		18771B0B30641CC9001C1DB0 /* Exceptions for "DigitalControler" folder in "DigitalControler" target */ = {
+		18771B0B30641CC9001C1DB0 /* Exceptions for "Touche" folder in "Touche" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 18771A7530641CC7001C1DB0 /* DigitalControler */;
+			target = 18771A7530641CC7001C1DB0 /* Touche */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		18771A7830641CC7001C1DB0 /* DigitalControler */ = {
+		18771A7830641CC7001C1DB0 /* Touche */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				18771B0B30641CC9001C1DB0 /* Exceptions for "DigitalControler" folder in "DigitalControler" target */,
+				18771B0B30641CC9001C1DB0 /* Exceptions for "Touche" folder in "Touche" target */,
 			);
-			path = DigitalControler;
+			path = Touche;
 			sourceTree = "<group>";
 		};
-		18771A8830641CC9001C1DB0 /* DigitalControlerTests */ = {
+		18771A8830641CC9001C1DB0 /* ToucheTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = DigitalControlerTests;
+			path = ToucheTests;
 			sourceTree = "<group>";
 		};
-		18771B0230641CC9001C1DB0 /* DigitalControlerMac */ = {
+		18771B0230641CC9001C1DB0 /* ToucheMac */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = DigitalControlerMac;
+			path = ToucheMac;
 			sourceTree = "<group>";
 		};
 		18771B0330641CC9001C1DB0 /* Shared */ = {
@@ -86,9 +86,9 @@
 		18771A6D30641CC7001C1DB0 = {
 			isa = PBXGroup;
 			children = (
-				18771A7830641CC7001C1DB0 /* DigitalControler */,
-				18771A8830641CC9001C1DB0 /* DigitalControlerTests */,
-				18771B0230641CC9001C1DB0 /* DigitalControlerMac */,
+				18771A7830641CC7001C1DB0 /* Touche */,
+				18771A8830641CC9001C1DB0 /* ToucheTests */,
+				18771B0230641CC9001C1DB0 /* ToucheMac */,
 				18771B0330641CC9001C1DB0 /* Shared */,
 				18771A7730641CC7001C1DB0 /* Products */,
 			);
@@ -97,9 +97,9 @@
 		18771A7730641CC7001C1DB0 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				18771A7630641CC7001C1DB0 /* DigitalControler.app */,
-				18771A8530641CC9001C1DB0 /* DigitalControlerTests.xctest */,
-				18771B0130641CC9001C1DB0 /* DigitalControlerMac.app */,
+				18771A7630641CC7001C1DB0 /* Touche.app */,
+				18771A8530641CC9001C1DB0 /* ToucheTests.xctest */,
+				18771B0130641CC9001C1DB0 /* ToucheMac.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -107,9 +107,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		18771A7530641CC7001C1DB0 /* DigitalControler */ = {
+		18771A7530641CC7001C1DB0 /* Touche */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 18771A9930641CC9001C1DB0 /* Build configuration list for PBXNativeTarget "DigitalControler" */;
+			buildConfigurationList = 18771A9930641CC9001C1DB0 /* Build configuration list for PBXNativeTarget "Touche" */;
 			buildPhases = (
 				18771A7230641CC7001C1DB0 /* Sources */,
 				18771A7330641CC7001C1DB0 /* Frameworks */,
@@ -120,19 +120,19 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				18771A7830641CC7001C1DB0 /* DigitalControler */,
+				18771A7830641CC7001C1DB0 /* Touche */,
 				18771B0330641CC9001C1DB0 /* Shared */,
 			);
-			name = DigitalControler;
+			name = Touche;
 			packageProductDependencies = (
 			);
-			productName = DigitalControler;
-			productReference = 18771A7630641CC7001C1DB0 /* DigitalControler.app */;
+			productName = Touche;
+			productReference = 18771A7630641CC7001C1DB0 /* Touche.app */;
 			productType = "com.apple.product-type.application";
 		};
-		18771A8430641CC9001C1DB0 /* DigitalControlerTests */ = {
+		18771A8430641CC9001C1DB0 /* ToucheTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 18771A9C30641CC9001C1DB0 /* Build configuration list for PBXNativeTarget "DigitalControlerTests" */;
+			buildConfigurationList = 18771A9C30641CC9001C1DB0 /* Build configuration list for PBXNativeTarget "ToucheTests" */;
 			buildPhases = (
 				18771A8130641CC9001C1DB0 /* Sources */,
 				18771A8230641CC9001C1DB0 /* Frameworks */,
@@ -144,18 +144,18 @@
 				18771A8730641CC9001C1DB0 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				18771A8830641CC9001C1DB0 /* DigitalControlerTests */,
+				18771A8830641CC9001C1DB0 /* ToucheTests */,
 			);
-			name = DigitalControlerTests;
+			name = ToucheTests;
 			packageProductDependencies = (
 			);
-			productName = DigitalControlerTests;
-			productReference = 18771A8530641CC9001C1DB0 /* DigitalControlerTests.xctest */;
+			productName = ToucheTests;
+			productReference = 18771A8530641CC9001C1DB0 /* ToucheTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		18771B0730641CC9001C1DB0 /* DigitalControlerMac */ = {
+		18771B0730641CC9001C1DB0 /* ToucheMac */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 18771B0830641CC9001C1DB0 /* Build configuration list for PBXNativeTarget "DigitalControlerMac" */;
+			buildConfigurationList = 18771B0830641CC9001C1DB0 /* Build configuration list for PBXNativeTarget "ToucheMac" */;
 			buildPhases = (
 				18771B0430641CC9001C1DB0 /* Sources */,
 				18771B0530641CC9001C1DB0 /* Frameworks */,
@@ -166,14 +166,14 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				18771B0230641CC9001C1DB0 /* DigitalControlerMac */,
+				18771B0230641CC9001C1DB0 /* ToucheMac */,
 				18771B0330641CC9001C1DB0 /* Shared */,
 			);
-			name = DigitalControlerMac;
+			name = ToucheMac;
 			packageProductDependencies = (
 			);
-			productName = DigitalControlerMac;
-			productReference = 18771B0130641CC9001C1DB0 /* DigitalControlerMac.app */;
+			productName = ToucheMac;
+			productReference = 18771B0130641CC9001C1DB0 /* ToucheMac.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -198,7 +198,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 18771A7130641CC7001C1DB0 /* Build configuration list for PBXProject "DigitalControler" */;
+			buildConfigurationList = 18771A7130641CC7001C1DB0 /* Build configuration list for PBXProject "Touche" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -212,9 +212,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				18771A7530641CC7001C1DB0 /* DigitalControler */,
-				18771A8430641CC9001C1DB0 /* DigitalControlerTests */,
-				18771B0730641CC9001C1DB0 /* DigitalControlerMac */,
+				18771A7530641CC7001C1DB0 /* Touche */,
+				18771A8430641CC9001C1DB0 /* ToucheTests */,
+				18771B0730641CC9001C1DB0 /* ToucheMac */,
 			);
 		};
 /* End PBXProject section */
@@ -270,7 +270,7 @@
 /* Begin PBXTargetDependency section */
 		18771A8730641CC9001C1DB0 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 18771A7530641CC7001C1DB0 /* DigitalControler */;
+			target = 18771A7530641CC7001C1DB0 /* Touche */;
 			targetProxy = 18771A8630641CC9001C1DB0 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -407,7 +407,7 @@
 				DEVELOPMENT_TEAM = 7RQ9DQUGKZ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = DigitalControler/Info.plist;
+				INFOPLIST_FILE = Touche/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Touche;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -442,7 +442,7 @@
 				DEVELOPMENT_TEAM = 7RQ9DQUGKZ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = DigitalControler/Info.plist;
+				INFOPLIST_FILE = Touche/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Touche;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -485,7 +485,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DigitalControler.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DigitalControler";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Touche.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Touche";
 			};
 			name = Debug;
 		};
@@ -507,7 +507,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DigitalControler.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DigitalControler";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Touche.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Touche";
 			};
 			name = Release;
 		};
@@ -574,7 +574,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		18771A7130641CC7001C1DB0 /* Build configuration list for PBXProject "DigitalControler" */ = {
+		18771A7130641CC7001C1DB0 /* Build configuration list for PBXProject "Touche" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				18771A9730641CC9001C1DB0 /* Debug */,
@@ -583,7 +583,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		18771A9930641CC9001C1DB0 /* Build configuration list for PBXNativeTarget "DigitalControler" */ = {
+		18771A9930641CC9001C1DB0 /* Build configuration list for PBXNativeTarget "Touche" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				18771A9A30641CC9001C1DB0 /* Debug */,
@@ -592,7 +592,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		18771A9C30641CC9001C1DB0 /* Build configuration list for PBXNativeTarget "DigitalControlerTests" */ = {
+		18771A9C30641CC9001C1DB0 /* Build configuration list for PBXNativeTarget "ToucheTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				18771A9D30641CC9001C1DB0 /* Debug */,
@@ -601,7 +601,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		18771B0830641CC9001C1DB0 /* Build configuration list for PBXNativeTarget "DigitalControlerMac" */ = {
+		18771B0830641CC9001C1DB0 /* Build configuration list for PBXNativeTarget "ToucheMac" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				18771B0930641CC9001C1DB0 /* Debug */,

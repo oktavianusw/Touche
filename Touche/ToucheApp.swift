@@ -1,13 +1,13 @@
 //
-//  DigitalControlerApp.swift
-//  DigitalControler
+//  ToucheApp.swift
+//  Touche
 //
 
 import SwiftUI
 import UIKit
 
 @main
-struct DigitalControlerApp: App {
+struct ToucheApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     var body: some Scene {

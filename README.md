@@ -111,15 +111,15 @@ The app reconnects to your last Mac automatically.
 
 ## Setup
 
-1. **Clone and open** `DigitalControler.xcodeproj` (the project keeps its original code name). In *Signing &
-   Capabilities*, set your own team for the `DigitalControler` (iPhone) and `DigitalControlerMac` (Mac) targets.
-2. **Build the Mac helper:** run the `DigitalControlerMac` scheme. A hand icon appears in the menu bar.
+1. **Clone and open** `Touche.xcodeproj`. In *Signing &
+   Capabilities*, set your own team for the `Touche` (iPhone) and `ToucheMac` (Mac) targets.
+2. **Build the Mac helper:** run the `ToucheMac` scheme. A hand icon appears in the menu bar.
    Tip: copy the built `Touche.app` to `~/Applications` and open it from there. macOS ties the Accessibility permission
    to the app's location, and Xcode's build folder moves around.
 3. **Allow Accessibility:** System Settings → Privacy & Security → Accessibility → turn on **Touche**.
    Then quit the helper from its menu and open it again. macOS only lets an app post input events after a relaunch.
    For the Screen tab, also allow **Screen Recording** (same place, *Screen & System Audio Recording*) and relaunch again.
-4. **Run the iPhone app:** run the `DigitalControler` scheme on your iPhone and allow Local Network access.
+4. **Run the iPhone app:** run the `Touche` scheme on your iPhone and allow Local Network access.
 5. **Pair:** on the Mac, click the menu bar icon → *Pair iPhone…*. In the app, tap *Scan QR code* (or point
    the iPhone's Camera at it). From then on the app connects to that Mac by itself.
 
@@ -148,7 +148,7 @@ iPhone finds the Mac without you opening anything. Turn it off with *Open at Log
 Shared/Protocol.swift             Wire format, service name/port, TLS-PSK pairing (used by both apps)
 Shared/PlayoutClock.swift         Jitter buffer timing: when the Mac should play each move
 
-DigitalControler/                 iPhone app
+Touche/                           iPhone app
   Client.swift                    Bonjour browsing, connection, auto-reconnect, latency ping
   TouchpadView.swift              Multi-touch surface: pointer, taps, scroll, drag, pinch, 3-finger swipes
   RemoteView.swift                Connected screen: Trackpad, Shortcuts and Screen modes, scroll strip
@@ -159,7 +159,7 @@ DigitalControler/                 iPhone app
   SettingsView.swift, Prefs.swift Settings screen, stored preferences, Keychain for pairing secrets
   Theme.swift                     Monochrome glass styling
 
-DigitalControlerMac/              Mac menu bar helper
+ToucheMac/                        Mac menu bar helper
   Server.swift                    Bonjour listener, QR pairing secret, lockout, ping echo
   Pacer.swift                     Holds moves and scrolls until their time, so the pointer follows the finger's rhythm
   Injector.swift                  Turns messages into mouse, scroll, and keyboard events
@@ -179,7 +179,7 @@ DigitalControlerMac/              Mac menu bar helper
 ## Running the tests
 
 ```bash
-xcodebuild test -project DigitalControler.xcodeproj -scheme DigitalControler -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+xcodebuild test -project Touche.xcodeproj -scheme Touche -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
 ```
 
 The unit tests cover the wire format, framing, pairing codes, Keychain storage, and the jitter buffer. CI runs them on every push.

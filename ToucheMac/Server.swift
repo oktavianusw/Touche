@@ -1,6 +1,6 @@
 //
 //  Server.swift
-//  DigitalControlerMac
+//  ToucheMac
 //
 
 import Foundation

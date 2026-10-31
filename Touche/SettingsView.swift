@@ -1,6 +1,6 @@
 //
 //  SettingsView.swift
-//  DigitalControler
+//  Touche
 //
 
 import SwiftUI

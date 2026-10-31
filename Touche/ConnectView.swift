@@ -1,6 +1,6 @@
 //
 //  ConnectView.swift
-//  DigitalControler
+//  Touche
 //
 
 import SwiftUI
