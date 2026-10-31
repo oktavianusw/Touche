@@ -15,11 +15,14 @@ struct KeyboardView: View {
     @State private var capsLock = false
     private let haptic = UIImpactFeedbackGenerator(style: .light)
 
+    /// Height that keeps keys about as tall as the iPhone's own keyboard, for portrait.
+    static let portraitHeight: CGFloat = 340
+
     var body: some View {
         let rows = Self.rows
         GeometryReader { geo in
             let gap: CGFloat = 5
-            let rowHeight = (geo.size.height - gap * CGFloat(rows.count - 1)) / CGFloat(rows.count)
+            let heightUnit = (geo.size.height - gap * CGFloat(rows.count - 1)) / rows.map(\.height).reduce(0, +)
             VStack(spacing: gap) {
                 ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
                     let keyUnit = (geo.size.width - gap * CGFloat(row.keys.count - 1)) / row.keys.map(\.width).reduce(0, +)
@@ -28,11 +31,14 @@ struct KeyboardView: View {
                             Button { press(key) } label: {
                                 Text(key.label)
                                     .font(.system(size: key.label.count > 1 ? 12 : 14))
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.6)
+                                    .padding(.horizontal, 1)
                                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                             }
                             .buttonStyle(KeyStyle(active: isActive(key)))
                             .accessibilityLabel(key.accessibilityLabel)
-                            .frame(width: keyUnit * key.width, height: rowHeight)
+                            .frame(width: keyUnit * key.width, height: heightUnit * row.height)
                         }
                     }
                 }
@@ -81,6 +87,7 @@ struct KeyboardView: View {
 
     struct Row {
         let keys: [Key]
+        var height: CGFloat = 1
     }
 
     private static func k(_ label: String, _ code: UInt16, _ width: CGFloat = 1) -> Key {
@@ -92,6 +99,8 @@ struct KeyboardView: View {
     }
 
     private static let rows: [Row] = [
+        Row(keys: [k("esc", 53, 1.4), k("F1", 122), k("F2", 120), k("F3", 99), k("F4", 118), k("F5", 96), k("F6", 97),
+                   k("F7", 98), k("F8", 100), k("F9", 101), k("F10", 109), k("F11", 103), k("F12", 111)], height: 0.75),
         Row(keys: [k("`", 50), k("1", 18), k("2", 19), k("3", 20), k("4", 21), k("5", 23), k("6", 22), k("7", 26),
                    k("8", 28), k("9", 25), k("0", 29), k("-", 27), k("=", 24), k("delete", 51, 1.6)]),
         Row(keys: [k("tab", 48, 1.6), k("Q", 12), k("W", 13), k("E", 14), k("R", 15), k("T", 17), k("Y", 16), k("U", 32),

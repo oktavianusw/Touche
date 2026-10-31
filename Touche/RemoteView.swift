@@ -23,7 +23,7 @@ struct RemoteView: View {
             Group {
                 switch mode {
                 case .trackpad: TrackpadPane(send: client.send, exitFullScreen: exitAction, exitAtTop: !barAtBottom)
-                case .keyboard: KeyboardView(send: client.send)
+                case .keyboard: KeyboardPane(send: client.send)
                 case .shortcuts: ShortcutsPane(send: client.send)
                 case .screen: ScreenPane(client: client)
                 }
@@ -425,36 +425,81 @@ private struct ShortcutsPane: View {
     ]
 
     var body: some View {
-        HStack(spacing: 10) {
-            VStack(spacing: 10) {
-                TypeToMacField(send: send)
-                Grid(horizontalSpacing: 10, verticalSpacing: 10) {
-                    ForEach(0..<3) { r in
-                        GridRow {
-                            ForEach(shortcuts[r * 3..<r * 3 + 3]) { s in
-                                Button { send(s.message) } label: {
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(s.keys).font(.system(size: 15, weight: .semibold))
-                                        Text(s.name).font(.system(size: 12)).foregroundStyle(.white.opacity(0.6))
-                                    }
-                                    .padding(.horizontal, 14)
-                                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                                }
-                                .buttonStyle(GlassButtonStyle(shape: RoundedRectangle(cornerRadius: 18, style: .continuous)))
-                                .accessibilityLabel(s.name)
-                            }
-                        }
+        GeometryReader { geo in
+            if geo.size.height > geo.size.width {
+                // Portrait: pad on top, then typing, then the buttons at a thumb-sized height.
+                VStack(spacing: 10) {
+                    if miniTrackpad { MiniTrackpad(send: send) }
+                    TypeToMacField(send: send)
+                    buttons.frame(height: miniTrackpad ? 3 * 64 + 2 * 10 : nil)
+                }
+            } else {
+                HStack(spacing: 10) {
+                    VStack(spacing: 10) {
+                        TypeToMacField(send: send)
+                        buttons
+                    }
+                    if miniTrackpad {
+                        MiniTrackpad(send: send).containerRelativeFrame(.horizontal) { w, _ in w * 0.3 }
                     }
                 }
             }
-            if miniTrackpad {
-                Pad(send: send)
-                    .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-                    .glassPanel()
-                    .overlay(alignment: .topLeading) {
-                        Caption("Mini trackpad").padding(.top, 12).padding(.leading, 16).allowsHitTesting(false)
+        }
+    }
+
+    private var buttons: some View {
+        Grid(horizontalSpacing: 10, verticalSpacing: 10) {
+            ForEach(0..<3) { r in
+                GridRow {
+                    ForEach(shortcuts[r * 3..<r * 3 + 3]) { s in
+                        Button { send(s.message) } label: {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(s.keys).font(.system(size: 15, weight: .semibold)).lineLimit(1)
+                                Text(s.name).font(.system(size: 12)).foregroundStyle(.white.opacity(0.6)).lineLimit(1)
+                            }
+                            .minimumScaleFactor(0.7)
+                            .padding(.horizontal, 14)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                        }
+                        .buttonStyle(GlassButtonStyle(shape: RoundedRectangle(cornerRadius: 18, style: .continuous)))
+                        .accessibilityLabel(s.name)
                     }
-                    .containerRelativeFrame(.horizontal) { w, _ in w * 0.3 }
+                }
+            }
+        }
+    }
+}
+
+/// A smaller pad next to the keys or shortcuts, so pointing doesn't need a mode switch.
+private struct MiniTrackpad: View {
+    let send: (Message) -> Void
+
+    var body: some View {
+        Pad(send: send)
+            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+            .glassPanel()
+            .overlay(alignment: .topLeading) {
+                Caption("Mini trackpad").padding(.top, 12).padding(.leading, 16).allowsHitTesting(false)
+            }
+    }
+}
+
+// MARK: - Keyboard
+
+/// Landscape: keys fill the pane. Portrait: keys stay at typing height, with a pad in the room above.
+private struct KeyboardPane: View {
+    let send: (Message) -> Void
+    @AppStorage(Prefs.miniTrackpad) private var miniTrackpad = true
+
+    var body: some View {
+        GeometryReader { geo in
+            if geo.size.height > geo.size.width {
+                VStack(spacing: 10) {
+                    if miniTrackpad { MiniTrackpad(send: send) } else { Spacer(minLength: 0) }
+                    KeyboardView(send: send).frame(height: min(geo.size.height, KeyboardView.portraitHeight))
+                }
+            } else {
+                KeyboardView(send: send)
             }
         }
     }
@@ -508,6 +553,14 @@ private struct TypeToMacField: View {
 
 #Preview("Shortcuts", traits: .landscapeLeft) {
     ShortcutsPane { _ in }.padding(16).appChrome()
+}
+
+#Preview("Shortcuts, portrait") {
+    ShortcutsPane { _ in }.padding(16).appChrome()
+}
+
+#Preview("Keyboard, portrait") {
+    KeyboardPane { _ in }.padding(16).appChrome()
 }
 
 #Preview("Screen, all displays", traits: .landscapeLeft) {

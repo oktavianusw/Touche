@@ -73,7 +73,7 @@ struct SettingsView: View {
                 section("Keyboard") {
                     group {
                         toggle("Key haptics", $keyHaptics)
-                        toggle("Mini trackpad in Shortcuts", $miniTrackpad, last: true)
+                        toggle("Mini trackpad in Shortcuts & Keyboard",$miniTrackpad, last: true)
                     }
                 }
                 section("Screen", footer: "Sharper uses more Wi-Fi and battery on both devices.") {
