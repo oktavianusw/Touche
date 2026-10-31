@@ -24,7 +24,7 @@ struct RemoteView: View {
                 switch mode {
                 case .trackpad: TrackpadPane(send: client.send, exitFullScreen: exitAction, exitAtTop: !barAtBottom)
                 case .keyboard: KeyboardPane(send: client.send)
-                case .shortcuts: ShortcutsPane(send: client.send)
+                case .shortcuts: ShortcutsPane(client: client)
                 case .screen: ScreenPane(client: client)
                 }
             }
@@ -287,6 +287,7 @@ private struct ScreenPane: View {
     @AppStorage(Prefs.naturalScrolling) private var naturalScrolling = true
     @AppStorage(Prefs.gestureHints) private var gestureHints = true
     @Environment(\.scenePhase) private var scenePhase
+    @State private var hintShown = true
 
     var body: some View {
         Group {
@@ -360,7 +361,7 @@ private struct ScreenPane: View {
                     .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                     .accessibilityLabel(client.displays.indices.contains(index) ? client.displays[index] : "Mac screen")
                     .overlay(alignment: .bottom) {
-                        if gestureHints {
+                        if gestureHints, hintShown {
                             ViewThatFits(in: .horizontal) {
                                 Text("Tap to click · Hold to drag · Two fingers to scroll · Pinch to zoom")
                                 Text("Tap · Hold to drag · 2 fingers scroll · Pinch zoom")
@@ -372,19 +373,31 @@ private struct ScreenPane: View {
                                 .glass(in: Capsule())
                                 .padding(.bottom, 8)
                                 .allowsHitTesting(false)
+                                .transition(.opacity)
                         }
+                    }
+                    // A reminder when a screen opens, not a fixture over it.
+                    .task(id: index) {
+                        hintShown = true
+                        try? await Task.sleep(for: .seconds(3))
+                        withAnimation(.easeOut(duration: 0.4)) { hintShown = false }
                     }
             } else {
                 ProgressView().tint(.white).frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             if client.displays.count > 1 {
+                // Labeled while the hint shows, then just the icon, to keep the corner clear.
                 Button { client.selectDisplay(nil) } label: {
-                    Label("All screens", systemImage: "square.grid.2x2")
-                        .font(.system(size: 13, weight: .medium))
-                        .padding(.horizontal, 12)
-                        .frame(height: 32)
+                    HStack(spacing: 6) {
+                        Image(systemName: "square.grid.2x2")
+                        if hintShown { Text("All screens").transition(.opacity) }
+                    }
+                    .font(.system(size: 13, weight: .medium))
+                    .padding(.horizontal, hintShown ? 12 : 9)
+                    .frame(height: 32)
                 }
                 .buttonStyle(.glassCapsule)
+                .accessibilityLabel("All screens")
                 .padding(8)
             }
         }
@@ -393,9 +406,11 @@ private struct ScreenPane: View {
 
 // MARK: - Shortcuts
 
+/// Shortcuts beside the Mac's live screen, so you see what they did and can tap on it.
 private struct ShortcutsPane: View {
-    let send: (Message) -> Void
-    @AppStorage(Prefs.miniTrackpad) private var miniTrackpad = true
+    let client: Client
+    @AppStorage(Prefs.keyHaptics) private var keyHaptics = true
+    private let haptic = UIImpactFeedbackGenerator(style: .light)
 
     private struct Shortcut: Identifiable {
         let keys: String
@@ -427,21 +442,19 @@ private struct ShortcutsPane: View {
     var body: some View {
         GeometryReader { geo in
             if geo.size.height > geo.size.width {
-                // Portrait: pad on top, then typing, then the buttons at a thumb-sized height.
+                // Portrait: screen on top, then typing, then the buttons at a thumb-sized height.
                 VStack(spacing: 10) {
-                    if miniTrackpad { MiniTrackpad(send: send) }
-                    TypeToMacField(send: send)
-                    buttons.frame(height: miniTrackpad ? 3 * 64 + 2 * 10 : nil)
+                    ScreenPane(client: client)
+                    TypeToMacField(send: client.send)
+                    buttons.frame(height: 3 * 64 + 2 * 10)
                 }
             } else {
                 HStack(spacing: 10) {
                     VStack(spacing: 10) {
-                        TypeToMacField(send: send)
+                        TypeToMacField(send: client.send)
                         buttons
                     }
-                    if miniTrackpad {
-                        MiniTrackpad(send: send).containerRelativeFrame(.horizontal) { w, _ in w * 0.3 }
-                    }
+                    ScreenPane(client: client).frame(width: geo.size.width * 0.5)
                 }
             }
         }
@@ -452,7 +465,10 @@ private struct ShortcutsPane: View {
             ForEach(0..<3) { r in
                 GridRow {
                     ForEach(shortcuts[r * 3..<r * 3 + 3]) { s in
-                        Button { send(s.message) } label: {
+                        Button {
+                            client.send(s.message)
+                            if keyHaptics { haptic.impactOccurred() }
+                        } label: {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(s.keys).font(.system(size: 15, weight: .semibold)).lineLimit(1)
                                 Text(s.name).font(.system(size: 12)).foregroundStyle(.white.opacity(0.6)).lineLimit(1)
@@ -552,11 +568,11 @@ private struct TypeToMacField: View {
 }
 
 #Preview("Shortcuts", traits: .landscapeLeft) {
-    ShortcutsPane { _ in }.padding(16).appChrome()
+    ShortcutsPane(client: .preview(selected: 0)).padding(16).appChrome()
 }
 
 #Preview("Shortcuts, portrait") {
-    ShortcutsPane { _ in }.padding(16).appChrome()
+    ShortcutsPane(client: .preview(selected: 0)).padding(16).appChrome()
 }
 
 #Preview("Keyboard, portrait") {
