@@ -7,7 +7,7 @@
 [![CI](https://github.com/oktavianusw/Touche/actions/workflows/ci.yml/badge.svg)](https://github.com/oktavianusw/Touche/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Turn your iPhone into a trackpad and keyboard for your Mac, over your local Wi-Fi.
+Turn your iPhone into a trackpad and keyboard for your Mac, over your local Wi-Fi, or from anywhere with Tailscale.
 
 Move the pointer, tap to click, scroll with two fingers, drag, pinch to zoom, swipe with three fingers for
 Mission Control, type on a Mac keyboard, fire common shortcuts, or see your Mac's screen and tap to click on it,
