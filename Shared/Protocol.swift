@@ -171,13 +171,15 @@ enum ParameterSets {
 }
 
 /// What the Mac's pairing QR code holds, as a link the iPhone's Camera app can open too:
-/// `digitalcontroler://pair?name=<Bonjour name>&secret=<key>&host=<IPv4, for networks without Bonjour>`
+/// `digitalcontroler://pair?name=<Bonjour name>&secret=<key>&host=<IPv4, for networks without Bonjour>&port=<listener port>`
 struct PairingCode: Equatable {
     static let scheme = "digitalcontroler"
 
     let name: String
     let secret: String
     var host: String?
+    /// The helper's real port; nil (older codes) means `servicePort`.
+    var port: UInt16?
 
     var url: URL {
         var c = URLComponents()
@@ -185,6 +187,7 @@ struct PairingCode: Equatable {
         c.host = "pair"
         c.queryItems = [URLQueryItem(name: "name", value: name), URLQueryItem(name: "secret", value: secret)]
             + (host.map { [URLQueryItem(name: "host", value: $0)] } ?? [])
+            + (port.map { [URLQueryItem(name: "port", value: String($0))] } ?? [])
         return c.url!
     }
 
@@ -196,13 +199,14 @@ struct PairingCode: Equatable {
         func value(_ key: String) -> String? { items.first { $0.name == key }?.value }
         guard let name = value("name"), !name.isEmpty, name.count <= 255,
               let secret = value("secret"), secret.count >= 32, secret.count <= 128 else { return nil }
-        self.init(name: name, secret: secret, host: value("host"))
+        self.init(name: name, secret: secret, host: value("host"), port: value("port").flatMap(UInt16.init))
     }
 
-    init(name: String, secret: String, host: String?) {
+    init(name: String, secret: String, host: String?, port: UInt16? = nil) {
         self.name = name
         self.secret = secret
         self.host = host
+        self.port = port
     }
 
     /// 256 random bits, URL-safe.

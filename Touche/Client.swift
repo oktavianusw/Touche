@@ -73,7 +73,7 @@ final class Client {
         if let mac = macs.first(where: { $0.endpoint.name == code.name })?.endpoint {
             connect(to: mac, secret: code.secret, pairingName: code.name)
         } else if let host = code.host {
-            connect(to: .hostPort(host: NWEndpoint.Host(host), port: NWEndpoint.Port(rawValue: servicePort)!),
+            connect(to: .hostPort(host: NWEndpoint.Host(host), port: NWEndpoint.Port(rawValue: code.port ?? servicePort)!),
                     secret: code.secret, pairingName: code.name)
         } else {
             error = "Can't find \(code.name) on this Wi-Fi. Make sure both are on the same network."

@@ -50,6 +50,8 @@ final class ToucheTests: XCTestCase {
     func testPairingCodeRoundTrip() {
         let code = PairingCode(name: "Jua's MacBook Pro", secret: PairingCode.newSecret(), host: "192.168.1.9")
         XCTAssertEqual(PairingCode(url: code.url), code)
+        let moved = PairingCode(name: "Mac (2)", secret: code.secret, host: "192.168.1.9", port: 49825)
+        XCTAssertEqual(PairingCode(url: moved.url), moved) // listener fell back to another port
         XCTAssertEqual(code.secret.count, 43)                                                  // 256 bits, base64url
         XCTAssertNotEqual(PairingCode.newSecret(), PairingCode.newSecret())
         XCTAssertNil(PairingCode(url: URL(string: "https://pair?name=Mac&secret=\(code.secret)")!))  // wrong scheme

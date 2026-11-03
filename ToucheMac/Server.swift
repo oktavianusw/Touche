@@ -25,12 +25,16 @@ final class Server {
     private let pacer = Pacer(play: Injector.handle)
     /// How bursty the iPhone's messages arrive, in ms, while one is connected.
     private(set) var jitterMs: Int?
+    /// What Bonjour actually registered: it appends " (2)" when the name is taken, e.g. by a record still lingering from a restart.
+    private var bonjourName: String?
+    /// Not always `servicePort`: if that was taken the listener fell back to any port.
+    private var port: UInt16?
 
     init() { start() }
 
     /// What the pairing QR code shows. The name is the Bonjour name the iPhone looks for.
     var pairingCode: PairingCode {
-        PairingCode(name: Host.current().localizedName ?? "Mac", secret: secret, host: Self.localIPv4)
+        PairingCode(name: bonjourName ?? Host.current().localizedName ?? "Mac", secret: secret, host: Self.localIPv4, port: port)
     }
 
     /// New secret: every paired iPhone has to scan the QR code again.
@@ -68,14 +72,21 @@ final class Server {
             params.allowLocalEndpointReuse = true
             let l = fixedPort ? try NWListener(using: params, on: NWEndpoint.Port(rawValue: servicePort)!) : try NWListener(using: params)
             l.service = NWListener.Service(name: Host.current().localizedName, type: serviceType)
-            l.stateUpdateHandler = { [weak self] state in
+            l.stateUpdateHandler = { [weak self, weak l] state in
                 MainActor.assumeIsolated {
                     switch state {
-                    case .ready: self?.status = "Waiting for iPhone…"
+                    case .ready:
+                        self?.status = "Waiting for iPhone…"
+                        self?.port = l?.port?.rawValue
                     case .failed where fixedPort: self?.start(fixedPort: false) // port taken: Bonjour still works on any port
                     case .failed(let e): self?.status = "Error: \(e.localizedDescription)"
                     default: break
                     }
+                }
+            }
+            l.serviceRegistrationUpdateHandler = { [weak self] change in
+                MainActor.assumeIsolated {
+                    if case .add(let endpoint) = change, case .service(let name, _, _, _) = endpoint { self?.bonjourName = name }
                 }
             }
             l.newConnectionHandler = { [weak self] c in
