@@ -171,7 +171,7 @@ enum ParameterSets {
 }
 
 /// What the Mac's pairing QR code holds, as a link the iPhone's Camera app can open too:
-/// `digitalcontroler://pair?name=<Bonjour name>&secret=<key>&host=<IPv4, for networks without Bonjour>&port=<listener port>`
+/// `digitalcontroler://pair?name=<Bonjour name>&secret=<key>&host=<IPv4, for networks without Bonjour>&port=<listener port>&remote=<Tailscale IPv4, for away from home>`
 struct PairingCode: Equatable {
     static let scheme = "digitalcontroler"
 
@@ -180,6 +180,8 @@ struct PairingCode: Equatable {
     var host: String?
     /// The helper's real port; nil (older codes) means `servicePort`.
     var port: UInt16?
+    /// The Mac's Tailscale address: Bonjour doesn't cross Tailscale, so this is how the iPhone finds it away from home.
+    var remote: String?
 
     var url: URL {
         var c = URLComponents()
@@ -188,6 +190,7 @@ struct PairingCode: Equatable {
         c.queryItems = [URLQueryItem(name: "name", value: name), URLQueryItem(name: "secret", value: secret)]
             + (host.map { [URLQueryItem(name: "host", value: $0)] } ?? [])
             + (port.map { [URLQueryItem(name: "port", value: String($0))] } ?? [])
+            + (remote.map { [URLQueryItem(name: "remote", value: $0)] } ?? [])
         return c.url!
     }
 
@@ -199,14 +202,22 @@ struct PairingCode: Equatable {
         func value(_ key: String) -> String? { items.first { $0.name == key }?.value }
         guard let name = value("name"), !name.isEmpty, name.count <= 255,
               let secret = value("secret"), secret.count >= 32, secret.count <= 128 else { return nil }
-        self.init(name: name, secret: secret, host: value("host"), port: value("port").flatMap(UInt16.init))
+        self.init(name: name, secret: secret, host: value("host"), port: value("port").flatMap(UInt16.init),
+                  remote: value("remote").flatMap { Self.isTailscale($0) ? $0 : nil })
     }
 
-    init(name: String, secret: String, host: String?, port: UInt16? = nil) {
+    init(name: String, secret: String, host: String?, port: UInt16? = nil, remote: String? = nil) {
         self.name = name
         self.secret = secret
         self.host = host
         self.port = port
+        self.remote = remote
+    }
+
+    /// Tailscale hands out addresses in 100.64.0.0/10 (the carrier-grade NAT range).
+    static func isTailscale(_ ip: String) -> Bool {
+        let parts = ip.split(separator: ".", omittingEmptySubsequences: false).compactMap { UInt8($0) }
+        return parts.count == 4 && parts[0] == 100 && parts[1] & 0xC0 == 64
     }
 
     /// 256 random bits, URL-safe.

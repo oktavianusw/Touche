@@ -34,7 +34,9 @@ final class Server {
 
     /// What the pairing QR code shows. The name is the Bonjour name the iPhone looks for.
     var pairingCode: PairingCode {
-        PairingCode(name: bonjourName ?? Host.current().localizedName ?? "Mac", secret: secret, host: Self.localIPv4, port: port)
+        PairingCode(name: bonjourName ?? Host.current().localizedName ?? "Mac", secret: secret,
+                    host: Self.ipv4 { name, _ in name.hasPrefix("en") }, port: port,
+                    remote: Self.ipv4 { name, ip in name.hasPrefix("utun") && PairingCode.isTailscale(ip) })
     }
 
     /// New secret: every paired iPhone has to scan the QR code again.
@@ -43,19 +45,20 @@ final class Server {
         start()
     }
 
-    /// The Mac's Wi-Fi/Ethernet address, for iPhones on networks that block Bonjour.
-    private static var localIPv4: String? {
+    /// The first IPv4 address on an interface that passes `match(interface name, address)`:
+    /// Wi-Fi/Ethernet (`en*`) for networks that block Bonjour, Tailscale (`utun*`) for away from home.
+    private static func ipv4(where match: (String, String) -> Bool) -> String? {
         var list: UnsafeMutablePointer<ifaddrs>?
         guard getifaddrs(&list) == 0, let first = list else { return nil }
         defer { freeifaddrs(list) }
         for ifa in sequence(first: first, next: { $0.pointee.ifa_next }) {
             let flags = Int32(ifa.pointee.ifa_flags)
             guard let addr = ifa.pointee.ifa_addr, addr.pointee.sa_family == UInt8(AF_INET),
-                  flags & IFF_UP != 0, flags & IFF_LOOPBACK == 0,
-                  String(cString: ifa.pointee.ifa_name).hasPrefix("en") else { continue }
+                  flags & IFF_UP != 0, flags & IFF_LOOPBACK == 0 else { continue }
             var host = [CChar](repeating: 0, count: Int(NI_MAXHOST))
             guard getnameinfo(addr, socklen_t(addr.pointee.sa_len), &host, socklen_t(host.count), nil, 0, NI_NUMERICHOST) == 0 else { continue }
-            return String(cString: host)
+            let ip = String(cString: host)
+            if match(String(cString: ifa.pointee.ifa_name), ip) { return ip }
         }
         return nil
     }

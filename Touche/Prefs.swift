@@ -25,6 +25,7 @@ enum Prefs {
     static let miniTrackpad = "miniTrackpad"
     static let screenQuality = "screenQuality"
     static let lastMac = "lastMac"
+    static let remoteHosts = "remoteHosts"
     static let barAtBottom = "barAtBottom"
 }
 
@@ -55,6 +56,19 @@ enum PairingSecrets {
         if SecItemAdd(q as CFDictionary, nil) == errSecSuccess {
             UserDefaults.standard.removeObject(forKey: "secret." + mac)
         }
+    }
+}
+
+/// Each Mac's Tailscale address ("100.x.y.z:port") from its QR code, under its Bonjour name. Not a secret.
+enum RemoteHosts {
+    static var all: [String: String] {
+        UserDefaults.standard.dictionary(forKey: Prefs.remoteHosts) as? [String: String] ?? [:]
+    }
+
+    static func set(_ hostPort: String, for mac: String) {
+        var hosts = all
+        hosts[mac] = hostPort
+        UserDefaults.standard.set(hosts, forKey: Prefs.remoteHosts)
     }
 }
 

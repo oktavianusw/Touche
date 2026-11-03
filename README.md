@@ -30,6 +30,9 @@ reads your fingers                  turns messages into real input events
 - **Discovery:** the Mac helper announces itself with Bonjour (`_digitalctl._tcp`), so the iPhone finds it
   with no IP typing. The pairing QR code also carries the Mac's IP (the helper listens on port `51515`), for
   networks that block Bonjour.
+- **Away from home:** with [Tailscale](https://tailscale.com) on both the Mac and the iPhone, the QR code also
+  carries the Mac's Tailscale address (`100.x.y.z`). Pair once at home; after that, when Bonjour can't find the Mac,
+  the app connects over Tailscale instead. Bonjour doesn't cross Tailscale, which is why the address is saved.
 - **Pairing and encryption:** the helper makes a random 256-bit secret and shows it as a QR code
   (menu bar → *Pair iPhone…*). Scan it once with the app, or with the iPhone's Camera. The secret becomes a TLS
   pre-shared key, so all traffic is encrypted and a phone without the current secret fails the handshake. TLS

@@ -36,6 +36,8 @@ final class Client {
     /// Off once the user taps Disconnect or an automatic attempt fails, so we never fight the user.
     private var autoReconnect = true
     private var lastAutoConnect = Date.distantPast
+    /// Bonjour had its chance to find the last Mac: from now on auto-connect may go over Tailscale instead.
+    private var tryRemote = false
     private var pingTimer: Timer?
     private var pingSeq = 0
     private var pingSentAt = Date.distantPast
@@ -60,21 +62,40 @@ final class Client {
         }
         b.start(queue: .main)
         browser = b
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+            self?.tryRemote = true
+            self?.autoConnect() // not on this Wi-Fi: away from home
+        }
     }
 
-    func connect(to endpoint: NWEndpoint, secret: String, pairingName: String? = nil) {
+    /// `name`: the Mac's Bonjour name when `endpoint` is an address. `remote`: its Tailscale address, saved once this works.
+    func connect(to endpoint: NWEndpoint, secret: String, name: String? = nil, remote: String? = nil) {
         autoReconnect = true
-        open(endpoint, secret: secret, auto: false, pairingName: pairingName)
+        open(endpoint, name: name ?? endpoint.name, secret: secret, auto: false, remote: remote)
+    }
+
+    /// Paired Macs that aren't on this network but can be reached over Tailscale.
+    var remoteMacs: [(name: String, endpoint: NWEndpoint)] {
+        RemoteHosts.all.keys.sorted()
+            .filter { name in !macs.contains { $0.endpoint.name == name } && PairingSecrets.get(for: name) != nil }
+            .compactMap { name in Self.remoteEndpoint(for: name).map { (name, $0) } }
+    }
+
+    static func remoteEndpoint(for mac: String) -> NWEndpoint? {
+        guard let hostPort = RemoteHosts.all[mac], let colon = hostPort.lastIndex(of: ":"),
+              let port = UInt16(hostPort[hostPort.index(after: colon)...]).flatMap(NWEndpoint.Port.init(rawValue:)) else { return nil }
+        return .hostPort(host: NWEndpoint.Host(String(hostPort[..<colon])), port: port)
     }
 
     /// From a scanned QR code: connect by the Mac's Bonjour name, or by IP where Bonjour is blocked.
     /// The secret is only remembered once it actually works, so a stale code can't replace a good one.
     func pair(with code: PairingCode) {
+        let port = NWEndpoint.Port(rawValue: code.port ?? servicePort)!
+        let remote = code.remote.map { "\($0):\(port.rawValue)" }
         if let mac = macs.first(where: { $0.endpoint.name == code.name })?.endpoint {
-            connect(to: mac, secret: code.secret, pairingName: code.name)
-        } else if let host = code.host {
-            connect(to: .hostPort(host: NWEndpoint.Host(host), port: NWEndpoint.Port(rawValue: code.port ?? servicePort)!),
-                    secret: code.secret, pairingName: code.name)
+            connect(to: mac, secret: code.secret, name: code.name, remote: remote)
+        } else if let host = code.host ?? code.remote {
+            connect(to: .hostPort(host: NWEndpoint.Host(host), port: port), secret: code.secret, name: code.name, remote: remote)
         } else {
             error = "Can't find \(code.name) on this Wi-Fi. Make sure both are on the same network."
         }
@@ -137,8 +158,8 @@ final class Client {
     }
 
     /// The pairing secret from this Mac's QR code, if it was ever scanned.
-    static func savedSecret(for endpoint: NWEndpoint) -> String? {
-        PairingSecrets.get(for: endpoint.name)
+    static func savedSecret(for name: String) -> String? {
+        PairingSecrets.get(for: name)
     }
 
     // MARK: Private
@@ -146,7 +167,7 @@ final class Client {
     private func autoConnect() {
         guard autoReconnect, connection == nil,
               let name = Self.lastMac,
-              let mac = macs.first(where: { $0.endpoint.name == name })?.endpoint,
+              let mac = macs.first(where: { $0.endpoint.name == name })?.endpoint ?? (tryRemote ? Self.remoteEndpoint(for: name) : nil),
               let secret = PairingSecrets.get(for: name) else { return }
         // Dropped again right after reconnecting: likely another device took over the Mac. Don't fight it.
         guard Date().timeIntervalSince(lastAutoConnect) > 10 else {
@@ -155,16 +176,16 @@ final class Client {
             return
         }
         lastAutoConnect = Date()
-        open(mac, secret: secret, auto: true)
+        open(mac, name: name, secret: secret, auto: true)
     }
 
-    /// `pairingName`: the Mac's Bonjour name from a QR code, so a connection made by IP is remembered under it too.
-    private func open(_ endpoint: NWEndpoint, secret: String, auto: Bool, pairingName: String? = nil) {
+    /// `name`: the Mac's Bonjour name, which the secret is remembered under even when `endpoint` is an address.
+    private func open(_ endpoint: NWEndpoint, name: String, secret: String, auto: Bool, remote: String? = nil) {
         close()
         let c = NWConnection(to: endpoint, using: .paired(secret: secret))
         c.stateUpdateHandler = { [weak self, weak c] state in
             MainActor.assumeIsolated {
-                if let c { self?.connection(c, to: endpoint, secret: secret, auto: auto, pairingName: pairingName, changedTo: state) }
+                if let c { self?.connection(c, to: endpoint, name: name, secret: secret, auto: auto, remote: remote, changedTo: state) }
             }
         }
         connection = c
@@ -173,21 +194,22 @@ final class Client {
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
             guard let self, c === connection, !connected else { return }
             close()
-            failed(auto: auto, name: endpoint.name)
+            failed(auto: auto, name: name, away: endpoint == Self.remoteEndpoint(for: name))
         }
     }
 
-    private func connection(_ c: NWConnection, to endpoint: NWEndpoint, secret: String, auto: Bool, pairingName: String?,
-                            changedTo state: NWConnection.State) {
+    private func connection(_ c: NWConnection, to endpoint: NWEndpoint, name: String, secret: String, auto: Bool,
+                            remote: String?, changedTo state: NWConnection.State) {
         guard c === connection else { return } // stale connection we already replaced
         switch state {
         case .ready:
             connected = true
             reconnecting = false
-            macName = endpoint.name
-            PairingSecrets.set(secret, for: endpoint.name)
-            if let pairingName { PairingSecrets.set(secret, for: pairingName) }
-            UserDefaults.standard.set(endpoint.name, forKey: Prefs.lastMac)
+            macName = name
+            tryRemote = true
+            PairingSecrets.set(secret, for: name)
+            if let remote { RemoteHosts.set(remote, for: name) }
+            UserDefaults.standard.set(name, forKey: Prefs.lastMac)
             receive(on: c)
             if sharingScreen { startScreen() } // reconnected mid-share
             ping()
@@ -206,15 +228,22 @@ final class Client {
                     if connection == nil { reconnecting = false } // the Mac is gone from the network
                 }
             } else {
-                failed(auto: auto, name: endpoint.name)
+                failed(auto: auto, name: name, away: endpoint == Self.remoteEndpoint(for: name))
             }
         default: break
         }
     }
 
-    private func failed(auto: Bool, name: String) {
+    private func failed(auto: Bool, name: String, away: Bool) {
         reconnecting = false
-        if auto {
+        if away && auto {
+            // Tailscale off, or the Mac asleep: stay quiet, and let Bonjour take over if the Mac turns up nearby.
+            tryRemote = false
+            lastAutoConnect = .distantPast
+            autoConnect()
+        } else if away {
+            error = "Couldn't reach \(name) over Tailscale. Check that Tailscale is on here and on the Mac, and that the Mac is awake."
+        } else if auto {
             autoReconnect = false
             error = "Couldn't reconnect to \(name). If pairing was reset on the Mac, scan its QR code again (menu bar → Pair iPhone…)."
         } else {

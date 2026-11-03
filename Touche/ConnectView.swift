@@ -20,7 +20,7 @@ struct ConnectView: View {
                 Text("Connect to your Mac")
                     .font(.system(size: 34, weight: .bold))
                     .kerning(-0.6)
-                Text("Same Wi-Fi network, helper app open on the Mac.")
+                Text("Same Wi-Fi network, helper app open on the Mac. Away from home? Turn on Tailscale on both.")
                     .font(.system(size: 15))
                     .foregroundStyle(.white.opacity(0.6))
                     .padding(.bottom, 16)
@@ -33,7 +33,10 @@ struct ConnectView: View {
                 .padding(.horizontal, 4)
 
                 ForEach(client.macs, id: \.endpoint) { mac in
-                    macCard(mac.endpoint)
+                    macCard(mac.endpoint, name: mac.endpoint.name)
+                }
+                ForEach(client.remoteMacs, id: \.name) { mac in
+                    macCard(mac.endpoint, name: mac.name, via: "via Tailscale")
                 }
 
                 HStack(spacing: 10) {
@@ -71,8 +74,9 @@ struct ConnectView: View {
         }
     }
 
-    private func macCard(_ mac: NWEndpoint) -> some View {
-        let secret = Client.savedSecret(for: mac)
+    private func macCard(_ mac: NWEndpoint, name: String, via: String? = nil) -> some View {
+        let secret = Client.savedSecret(for: name)
+        let status = secret == nil ? "Not paired yet" : Client.lastMac == name ? "Last used" : "Paired"
         return VStack(spacing: 14) {
             HStack(spacing: 12) {
                 Image(systemName: "laptopcomputer")
@@ -80,15 +84,15 @@ struct ConnectView: View {
                     .frame(width: 44, height: 44)
                     .glass(in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(mac.name).font(.system(size: 16, weight: .semibold))
-                    Text(secret == nil ? "Not paired yet" : Client.lastMac == mac.name ? "Last used" : "Paired")
+                    Text(name).font(.system(size: 16, weight: .semibold))
+                    Text([status, via].compactMap { $0 }.joined(separator: " · "))
                         .font(.system(size: 13))
                         .foregroundStyle(.white.opacity(0.55))
                 }
                 Spacer()
             }
             Button(secret == nil ? "Pair" : "Connect") {
-                if let secret { client.connect(to: mac, secret: secret) } else { scanning = true }
+                if let secret { client.connect(to: mac, secret: secret, name: name) } else { scanning = true }
             }
             .buttonStyle(PrimaryButtonStyle())
             .disabled(client.connecting)

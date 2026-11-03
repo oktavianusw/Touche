@@ -47,11 +47,24 @@ final class ToucheTests: XCTestCase {
         XCTAssertNil(ParameterSets.decode(Data()))               // empty
     }
 
+    func testTailscaleRange() {
+        XCTAssertTrue(PairingCode.isTailscale("100.64.0.1"))
+        XCTAssertTrue(PairingCode.isTailscale("100.127.255.254"))
+        XCTAssertFalse(PairingCode.isTailscale("100.63.0.1"))
+        XCTAssertFalse(PairingCode.isTailscale("100.128.0.1"))
+        XCTAssertFalse(PairingCode.isTailscale("192.168.1.5"))
+        XCTAssertFalse(PairingCode.isTailscale("100.64.0"))
+    }
+
     func testPairingCodeRoundTrip() {
         let code = PairingCode(name: "Jua's MacBook Pro", secret: PairingCode.newSecret(), host: "192.168.1.9")
         XCTAssertEqual(PairingCode(url: code.url), code)
         let moved = PairingCode(name: "Mac (2)", secret: code.secret, host: "192.168.1.9", port: 49825)
         XCTAssertEqual(PairingCode(url: moved.url), moved) // listener fell back to another port
+        let away = PairingCode(name: "Mac", secret: code.secret, host: nil, port: 51515, remote: "100.101.102.103")
+        XCTAssertEqual(PairingCode(url: away.url), away)
+        let bogus = PairingCode(name: "Mac", secret: code.secret, host: nil, remote: "8.8.8.8")
+        XCTAssertNil(PairingCode(url: bogus.url)?.remote) // only Tailscale addresses are kept
         XCTAssertEqual(code.secret.count, 43)                                                  // 256 bits, base64url
         XCTAssertNotEqual(PairingCode.newSecret(), PairingCode.newSecret())
         XCTAssertNil(PairingCode(url: URL(string: "https://pair?name=Mac&secret=\(code.secret)")!))  // wrong scheme
